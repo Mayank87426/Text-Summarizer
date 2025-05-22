@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Quiz Results</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #74ebd5, #9face6);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            flex-grow: 1;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: bold;
+            color: #4A4E69;
+        }
+        .score-box {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: bold;
+            color: #222;
+        }
+        .topic-link {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .topic-link a {
+            padding: 12px 30px;
+            background: #5A67D8;
+            color: white;
+            border-radius: 30px;
+            font-size: 16px;
+            text-decoration: none;
+            transition: 0.3s ease;
+        }
+        .topic-link a:hover {
+            background-color: #434190;
+        }
+        .question-block {
+            background-color: #f8f9fa;
+            border-left: 6px solid #4CAF50;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .question-block.wrong-answer {
+            border-left-color: #dc3545;
+        }
+        .question-block p {
+            margin: 8px 0;
+        }
+        .badge {
+            padding: 6px 12px;
+            font-size: 14px;
+            border-radius: 12px;
+        }
+        .badge-correct {
+            background-color: #28a745;
+            color: white;
+        }
+        .badge-wrong {
+            background-color: #dc3545;
+            color: white;
+        }
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: auto;
+            padding: 20px 0;
+        }
+        /* Style for explanations and chart */
+        .results-section {
+            padding: 30px 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            margin-top: 30px;
+        }
+        .results-section h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #4A4E69;
+        }
+        .results-section ul {
+            list-style-type: disc;
+            padding-left: 25px;
+        }
+        .results-section li {
+            margin-bottom: 10px;
+        }
+
+        /* --- Chart Specific Styles --- */
+        /* This wrapper ensures the canvas has a defined space to fill */
+        .chart-container {
+            position: relative; /* Important for Chart.js responsiveness */
+            width: 100%; /* Make it fill its parent's width */
+            height: 400px; /* Give it a fixed height or set aspect ratio below */
+            margin: 0 auto; /* Center the chart if its container allows */
+        }
+        /* The canvas inside the container will now be responsive */
+        #keywordChart {
+            /* No explicit width/height attributes here */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🎯 Your Quiz Results</h2>
+
+        <div class="score-box">
+            You scored <span class="text-success">{{ score }}</span> out of <span class="text-primary">{{ total }}</span>
+        </div>
+
+        {% for r in results %}
+            <div class="question-block {% if not r.is_correct %}wrong-answer{% endif %}">
+                <p><strong>Q{{ r.question_no }}:</strong> {{ r.question_text }}</p>
+                <p>Your Answer:
+                    <span class="badge {{ 'badge-correct' if r.is_correct else 'badge-wrong' }}">
+                        {{ r.user_answer or 'Not Answered' }}
+                        {{ '✅' if r.is_correct else '❌' }}
+                    </span>
+                </p>
+                <p>Correct Answer: <strong>{{ r.correct_answer }}</strong></p>
+            </div>
+        {% endfor %}
+
+    </div> <div class="container results-section">
+        <h3 class="mt-5">📘 Answer Explanations</h3>
+        {% if explanations %}
+        <ul>
+            {% for explanation in explanations %}
+                <li>{{ explanation }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-center text-muted">No explanations available for this quiz.</p>
+        {% endif %}
+
+        <h3 class="mt-5">📊 Visual Summary</h3>
+        {% if keyword_freqs %}
+        <div class="chart-container"> <canvas id="keywordChart"></canvas> </div>
+        {% else %}
+        <p class="text-center text-muted">No keyword frequency data to display.</p>
+        {% endif %}
+    </div>
+
+    <footer>
+        &copy; {{ 2025 }} | Quiz App | Powered by Flask + spaCy
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const chartCanvas = document.getElementById('keywordChart');
+        {% if keyword_freqs %}
+            if (chartCanvas) {
+                const ctx = chartCanvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: {{ keyword_freqs | map(attribute=0) | list | tojson }},
+                        datasets: [{
+                            label: 'Keyword Frequency',
+                            data: {{ keyword_freqs | map(attribute=1) | list | tojson }},
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false, // Keep this as you might want to control height
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Frequency'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Keywords'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        label += context.parsed.y;
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                // No need for chartCanvas.style.height = '400px'; here, as it's handled by .chart-container CSS
+            }
+        {% endif %}
+    </script>
+
+</body>
+</html>

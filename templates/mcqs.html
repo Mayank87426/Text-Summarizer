@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated MCQs</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 2%;
+            margin-top: 5%;
+        }
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .card-body {
+            background-color: #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .card-title {
+            font-weight: bold;
+            font-size: 18px;
+            color: #343a40;
+        }
+        .form-check-label {
+            font-size: 16px;
+            color: #495057;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="mt-4 text-center">Generated MCQs</h1>
+    <div class="container">
+        <form method="POST" action="/refresh_mcqs">
+            {% for index, question, choices, correct_answer in mcqs %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Q{{ index }}: {{ question }}?</h5>
+                        <ul>
+                            {% for choice in choices %}
+                                <li>{{ choice }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p><strong>Correct Answer:</strong> {{ correct_answer }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+            <input type="hidden" name="text" value="{{ original_text }}">
+            <input type="hidden" name="num_questions" value="{{ num_questions }}">
+            <button type="submit">Refresh MCQs</button>
+        </form>
+    </div>
+</body>
+</html>

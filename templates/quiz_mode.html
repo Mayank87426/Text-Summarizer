@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MCQ Quiz Mode</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f4fb;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 30px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 850px;
+            margin: auto;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .question {
+            margin-bottom: 25px;
+        }
+        .submit-btn {
+            display: block;
+            margin: 40px auto 0;
+            padding: 12px 28px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+        h2 {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 class="text-center mb-4">📝 MCQ Quiz</h2>
+    <form action="/evaluate_mcqs" method="POST">
+        {% for index, question, choices, correct_answer in mcqs %}
+            <div class="question">
+                <p><strong>Q{{ index }}:</strong> {{ question }}</p>
+                {% for choice in choices %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="q{{ index }}" value="{{ 'ABCD'[loop.index0] }}" id="q{{ index }}_{{ loop.index0 }}">
+                        <label class="form-check-label" for="q{{ index }}_{{ loop.index0 }}">
+                            {{ choice }}
+                        </label>
+                    </div>
+                {% endfor %}
+
+                <!-- Hidden inputs needed for evaluation -->
+                <input type="hidden" name="correct_q{{ index }}" value="{{ correct_answer }}">
+                <input type="hidden" name="topic_q{{ index }}" value="{{ choices['ABCD'.index(correct_answer)] }}">
+                <input type="hidden" name="question_q{{ index }}" value="{{ question }}">
+                {% for choice in choices %}
+                    <input type="hidden" name="choices_q{{ index }}" value="{{ choice }}">
+                {% endfor %}
+            </div>
+            <hr>
+        {% endfor %}
+
+        <!-- Metadata -->
+        <input type="hidden" name="total" value="{{ mcqs|length }}">
+        <input type="hidden" name="text" value="{{ original_text }}">
+        <input type="hidden" name="main_topic" value="{{ main_topic }}">
+        <input type="hidden" name="language" value="{{ language }}">
+
+        <button type="submit" class="submit-btn">✅ Submit Quiz</button>
+    </form>
+</div>
+</body>
+</html>

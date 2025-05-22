@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 70%;
+            max-width: 700px;
+            margin: auto;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .summary-box {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100px;
+            max-width: 85%; /* Reduced width */
+            margin: 20px auto; /* Centering */
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Summary</h1>
+
+        <div class="summary-box">
+            <p>{{ summary }}</p>
+        </div>
+
+        <!-- Form for refreshing the summary -->
+        <form method="POST" action="/refresh_summary">
+            <input type="hidden" name="text" value="{{ original_text }}">
+            <input type="hidden" name="summary_lines" value="{{ summary_lines }}">
+            <button type="submit">Refresh Summary</button>
+        </form>
+
+        <footer>Click the button to generate a new summary with the same length.</footer>
+    </div>
+</body>
+</html>
