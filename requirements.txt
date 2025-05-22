@@ -3,13 +3,14 @@ spacy==3.7.2
 PyMuPDF==1.23.21
 googletrans==4.0.0-rc1
 matplotlib==3.8.4
-Werkzeug==2.3.7
-click==8.1.7
-certifi==2024.2.2
-charset-normalizer==3.3.2
-idna==3.6
-urllib3==2.2.1
-requests==2.31.0
-numpy==1.26.4
-Jinja2==3.1.3
-MarkupSafe==2.1.5
+gunicorn==21.2.0
+
+# Let pip resolve these automatically (don't force versions)
+# Remove: idna==3.6
+# Remove: urllib3==2.2.1
+# Remove: requests==2.31.0
+# Remove: charset-normalizer==3.3.2
+# Remove: certifi==2024.2.2
+# Remove: numpy==1.26.4
+
+# These will be installed automatically by spacy/matplotlib/etc
